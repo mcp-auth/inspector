@@ -25,7 +25,7 @@ import {
   Progress,
 } from "@modelcontextprotocol/sdk/types.js";
 import { RequestOptions } from "@modelcontextprotocol/sdk/shared/protocol.js";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { ConnectionStatus } from "../constants";
@@ -40,6 +40,7 @@ import {
 } from "@/utils/configUtils";
 import { getMCPServerRequestTimeout } from "@/utils/configUtils";
 import { InspectorConfig } from "../configurationTypes";
+import { OAuthClientInformation } from "@modelcontextprotocol/sdk/shared/auth.js";
 
 interface UseConnectionOptions {
   transportType: "stdio" | "sse" | "streamable-http";
@@ -49,6 +50,7 @@ interface UseConnectionOptions {
   env: Record<string, string>;
   bearerToken?: string;
   headerName?: string;
+  oauthClientId?: string;
   config: InspectorConfig;
   onNotification?: (notification: Notification) => void;
   onStdErrNotification?: (notification: Notification) => void;
@@ -66,6 +68,7 @@ export function useConnection({
   env,
   bearerToken,
   headerName,
+  oauthClientId,
   config,
   onNotification,
   onStdErrNotification,
@@ -82,6 +85,15 @@ export function useConnection({
     { request: string; response?: string }[]
   >([]);
   const [completionsSupported, setCompletionsSupported] = useState(true);
+
+  const oauthClientInformation: OAuthClientInformation | undefined =
+    useMemo(() => {
+      if (!oauthClientId) {
+        return undefined;
+      }
+
+      return { client_id: oauthClientId };
+    }, [oauthClientId]);
 
   const pushHistory = (request: object, response?: object) => {
     setRequestHistory((prev) => [
@@ -247,7 +259,10 @@ export function useConnection({
   const handleAuthError = async (error: unknown) => {
     if (error instanceof SseError && error.code === 401) {
       // Create a new auth provider with the current server URL
-      const serverAuthProvider = new InspectorOAuthClientProvider(sseUrl);
+      const serverAuthProvider = new InspectorOAuthClientProvider(
+        sseUrl,
+        oauthClientInformation,
+      );
 
       const result = await auth(serverAuthProvider, { serverUrl: sseUrl });
       return result === "AUTHORIZED";
@@ -294,7 +309,10 @@ export function useConnection({
       const headers: HeadersInit = {};
 
       // Create an auth provider with the current server URL
-      const serverAuthProvider = new InspectorOAuthClientProvider(sseUrl);
+      const serverAuthProvider = new InspectorOAuthClientProvider(
+        sseUrl,
+        oauthClientInformation,
+      );
 
       // Use manually provided bearer token if available, otherwise use OAuth tokens
       const token =
@@ -396,7 +414,10 @@ export function useConnection({
 
   const disconnect = async () => {
     await mcpClient?.close();
-    const authProvider = new InspectorOAuthClientProvider(sseUrl);
+    const authProvider = new InspectorOAuthClientProvider(
+      sseUrl,
+      oauthClientInformation,
+    );
     authProvider.clear();
     setMcpClient(null);
     setConnectionStatus("disconnected");
