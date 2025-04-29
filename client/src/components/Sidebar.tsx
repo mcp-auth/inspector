@@ -36,6 +36,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
+import { Textarea } from "./ui/textarea";
 
 interface SidebarProps {
   connectionStatus: ConnectionStatus;
@@ -55,6 +56,8 @@ interface SidebarProps {
   setHeaderName?: (name: string) => void;
   oauthClientId: string;
   setOauthClientId: (id: string) => void;
+  oauthParams: string;
+  setOauthParams: (params: string) => void;
   onConnect: () => void;
   onDisconnect: () => void;
   stdErrNotifications: StdErrNotification[];
@@ -84,6 +87,8 @@ const Sidebar = ({
   setHeaderName,
   oauthClientId,
   setOauthClientId,
+  oauthParams,
+  setOauthParams,
   onConnect,
   onDisconnect,
   stdErrNotifications,
@@ -260,6 +265,14 @@ const Sidebar = ({
                       placeholder="Redirect URL"
                       value={window.location.origin + "/oauth/callback"}
                       className="font-mono"
+                    />
+                    <label className="text-sm font-medium">Auth Params</label>
+                    <Textarea
+                      placeholder="Auth Params (JSON)"
+                      onChange={(e) => setOauthParams(e.target.value)}
+                      value={oauthParams}
+                      data-testid="oauth-params-input"
+                      className="font-mono min-h-40"
                     />
                   </div>
                 )}

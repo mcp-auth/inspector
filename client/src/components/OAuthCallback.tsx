@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import {
   InspectorOAuthClientProvider,
+  getAuthParamsFromSessionStorage,
   getClientInformationFromSessionStorage,
 } from "../lib/auth";
 import { SESSION_KEYS } from "../lib/constants";
@@ -47,12 +48,15 @@ const OAuthCallback = ({ onConnect }: OAuthCallbackProps) => {
       const clientInformation =
         await getClientInformationFromSessionStorage(serverUrl);
 
+      const authParams = getAuthParamsFromSessionStorage(serverUrl);
+
       let result;
       try {
         // Create an auth provider with the current server URL
         const serverAuthProvider = new InspectorOAuthClientProvider(
           serverUrl,
           clientInformation,
+          authParams,
         );
 
         result = await auth(serverAuthProvider, {

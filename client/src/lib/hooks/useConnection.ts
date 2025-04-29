@@ -51,6 +51,7 @@ interface UseConnectionOptions {
   bearerToken?: string;
   headerName?: string;
   oauthClientId?: string;
+  oauthParams?: string;
   config: InspectorConfig;
   onNotification?: (notification: Notification) => void;
   onStdErrNotification?: (notification: Notification) => void;
@@ -69,6 +70,7 @@ export function useConnection({
   bearerToken,
   headerName,
   oauthClientId,
+  oauthParams,
   config,
   onNotification,
   onStdErrNotification,
@@ -94,6 +96,18 @@ export function useConnection({
 
       return { client_id: oauthClientId };
     }, [oauthClientId]);
+
+  const oauthParamsObject = useMemo(() => {
+    if (!oauthParams) {
+      return undefined;
+    }
+    try {
+      return JSON.parse(oauthParams);
+    } catch (e) {
+      console.error("Failed to parse OAuth params", e);
+      return undefined;
+    }
+  }, [oauthParams]);
 
   const pushHistory = (request: object, response?: object) => {
     setRequestHistory((prev) => [
@@ -262,6 +276,7 @@ export function useConnection({
       const serverAuthProvider = new InspectorOAuthClientProvider(
         sseUrl,
         oauthClientInformation,
+        oauthParamsObject,
       );
 
       const result = await auth(serverAuthProvider, { serverUrl: sseUrl });
@@ -312,6 +327,7 @@ export function useConnection({
       const serverAuthProvider = new InspectorOAuthClientProvider(
         sseUrl,
         oauthClientInformation,
+        oauthParamsObject,
       );
 
       // Use manually provided bearer token if available, otherwise use OAuth tokens
@@ -417,6 +433,7 @@ export function useConnection({
     const authProvider = new InspectorOAuthClientProvider(
       sseUrl,
       oauthClientInformation,
+      oauthParamsObject,
     );
     authProvider.clear();
     setMcpClient(null);
