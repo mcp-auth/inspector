@@ -6,6 +6,7 @@ import {
   OAuthTokensSchema,
 } from "@modelcontextprotocol/sdk/shared/auth.js";
 import { SESSION_KEYS, getServerSpecificKey } from "./constants";
+import { generateRandomState } from "@/utils/oauthUtils";
 
 export const getClientInformationFromSessionStorage = async (
   serverUrl: string,
@@ -98,7 +99,36 @@ export class InspectorOAuthClientProvider implements OAuthClientProvider {
     sessionStorage.setItem(key, JSON.stringify(tokens));
   }
 
+  /**
+   * Generate, store, and return a new state parameter for OAuth.
+   */
+  generateAndStoreState(): string {
+    const state = generateRandomState(32);
+    const key = getServerSpecificKey("oauth_state", this.serverUrl);
+    sessionStorage.setItem(key, state);
+    return state;
+  }
+
+  /**
+   * Retrieve the stored state parameter for this serverUrl.
+   */
+  getState(): string | null {
+    const key = getServerSpecificKey("oauth_state", this.serverUrl);
+    return sessionStorage.getItem(key);
+  }
+
+  /**
+   * Remove the stored state parameter for this serverUrl.
+   */
+  clearState() {
+    const key = getServerSpecificKey("oauth_state", this.serverUrl);
+    sessionStorage.removeItem(key);
+  }
+
   redirectToAuthorization(authorizationUrl: URL) {
+    // Generate and store a new state parameter
+    const state = this.generateAndStoreState();
+    authorizationUrl.searchParams.set("state", state);
     const authParams = this.authParams();
     console.log("authParams", authParams);
     if (authParams) {

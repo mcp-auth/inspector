@@ -36,6 +36,9 @@ const OAuthCallback = ({ onConnect }: OAuthCallbackProps) => {
         });
 
       const params = parseOAuthCallbackParams(window.location.search);
+      // Extract state from query params
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnedState = urlParams.get("state");
       if (!params.successful) {
         return notifyError(generateOAuthErrorDescription(params));
       }
@@ -43,6 +46,20 @@ const OAuthCallback = ({ onConnect }: OAuthCallbackProps) => {
       const serverUrl = sessionStorage.getItem(SESSION_KEYS.SERVER_URL);
       if (!serverUrl) {
         return notifyError("Missing Server URL");
+      }
+
+      // Validate state parameter
+      const serverAuthProvider = new InspectorOAuthClientProvider(
+        serverUrl,
+        undefined,
+        undefined,
+      );
+      const expectedState = serverAuthProvider.getState();
+      serverAuthProvider.clearState(); // Always clear after checking
+      if (!returnedState || !expectedState || returnedState !== expectedState) {
+        return notifyError(
+          "Invalid or missing OAuth state parameter. Please try logging in again."
+        );
       }
 
       const clientInformation =
