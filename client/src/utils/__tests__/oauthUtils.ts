@@ -1,7 +1,8 @@
 import {
   generateOAuthErrorDescription,
   parseOAuthCallbackParams,
-} from "@/utils/oauthUtils.ts";
+  generateRandomState,
+} from "@/utils/oauthUtils";
 
 describe("parseOAuthCallbackParams", () => {
   it("Returns successful: true and code when present", () => {
@@ -74,5 +75,29 @@ describe("generateOAuthErrorDescription", () => {
     ).toEqual(
       "Error: invalid_request.\nDetails: The request could not be completed as dialed.\nMore info: https://example.com/error-docs.",
     );
+  });
+});
+
+describe("generateRandomState", () => {
+  it("generates a string of the correct length", () => {
+    const state = generateRandomState(32);
+    expect(state).toHaveLength(32);
+    const state16 = generateRandomState(16);
+    expect(state16).toHaveLength(16);
+  });
+
+  it("generates a string with only allowed characters", () => {
+    const charset =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const state = generateRandomState(64);
+    for (const char of state) {
+      expect(charset.includes(char)).toBe(true);
+    }
+  });
+
+  it("generates different values on subsequent calls (randomness)", () => {
+    const state1 = generateRandomState(32);
+    const state2 = generateRandomState(32);
+    expect(state1).not.toEqual(state2);
   });
 });
