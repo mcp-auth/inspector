@@ -69,8 +69,9 @@ export const generateOAuthErrorDescription = (
  * @param length Number of characters in the generated string (default: 32)
  */
 export function generateRandomState(length = 32): string {
-  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charset =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const array = new Uint8Array(length);
   window.crypto.getRandomValues(array);
-  return Array.from(array, (byte) => charset[byte % charset.length]).join('');
+  return Array.from(array, (byte) => charset[byte % charset.length]).join("");
 }

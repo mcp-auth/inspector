@@ -58,7 +58,7 @@ const OAuthCallback = ({ onConnect }: OAuthCallbackProps) => {
       serverAuthProvider.clearState(); // Always clear after checking
       if (!returnedState || !expectedState || returnedState !== expectedState) {
         return notifyError(
-          "Invalid or missing OAuth state parameter. Please try logging in again."
+          "Invalid or missing OAuth state parameter. Please try logging in again.",
         );
       }
 
