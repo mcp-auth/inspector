@@ -15,10 +15,13 @@ describe("OAuth /authorize URL includes state parameter", () => {
   });
 
   it("includes state parameter in the authorization URL", () => {
-    // Mock window.location.href
+    // Mock window.location.href using Object.defineProperty
     const originalLocation = window.location;
-    delete (window as any).location;
-    (window as any).location = { href: "" };
+
+    Object.defineProperty(window, "location", {
+      value: { href: "" },
+      writable: true,
+    });
 
     const url = new URL("https://authserver.com/authorize");
     provider.redirectToAuthorization(url);
@@ -30,7 +33,10 @@ describe("OAuth /authorize URL includes state parameter", () => {
     expect(stateInUrl!.length).toBeGreaterThan(0);
 
     // Restore window.location
-    window.location = originalLocation;
+    Object.defineProperty(window, "location", {
+      value: originalLocation,
+      writable: true,
+    });
   });
 
   afterAll(() => {
