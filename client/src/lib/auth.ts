@@ -104,7 +104,7 @@ export class InspectorOAuthClientProvider implements OAuthClientProvider {
    */
   generateAndStoreState(): string {
     const state = generateRandomState(32);
-    const key = getServerSpecificKey("oauth_state", this.serverUrl);
+    const key = getServerSpecificKey(SESSION_KEYS.OAUTH_STATE, this.serverUrl);
     sessionStorage.setItem(key, state);
     return state;
   }
@@ -113,7 +113,7 @@ export class InspectorOAuthClientProvider implements OAuthClientProvider {
    * Retrieve the stored state parameter for this serverUrl.
    */
   getState(): string | null {
-    const key = getServerSpecificKey("oauth_state", this.serverUrl);
+    const key = getServerSpecificKey(SESSION_KEYS.OAUTH_STATE, this.serverUrl);
     return sessionStorage.getItem(key);
   }
 
@@ -121,7 +121,7 @@ export class InspectorOAuthClientProvider implements OAuthClientProvider {
    * Remove the stored state parameter for this serverUrl.
    */
   clearState() {
-    const key = getServerSpecificKey("oauth_state", this.serverUrl);
+    const key = getServerSpecificKey(SESSION_KEYS.OAUTH_STATE, this.serverUrl);
     sessionStorage.removeItem(key);
   }
 
