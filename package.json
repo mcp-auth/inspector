@@ -44,7 +44,8 @@
     "prepare": "npm run build",
     "publish-all": "npm publish --workspaces --access public && npm publish --access public",
     "update-version": "node scripts/update-version.js",
-    "check-version": "node scripts/check-version-consistency.js"
+    "check-version": "node scripts/check-version-consistency.js",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@modelcontextprotocol/inspector-cli": "^0.16.2",
@@ -64,6 +65,8 @@
     "@types/node": "^22.7.5",
     "@types/shell-quote": "^1.7.5",
     "jest-fixed-jsdom": "^0.0.9",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
     "prettier": "3.3.3",
     "rimraf": "^6.0.1",
     "typescript": "^5.4.2"
